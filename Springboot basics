@@ -1,0 +1,406 @@
+Spring boot:
+IOC means Spring Container manages object creation instead of the programmer.Spring boot:
+IOC means Spring Container manages object creation instead of the programmer.
+
+Problems Before Spring:
+EmployeeService service = new EmployeeService();
+
+Developer creates objects manually.
+Issues:
+
+Tight coupling
+Difficult testing
+More maintenance
+
+Spring Solution
+
+Spring creates and manages objects.
+
+@Autowired
+EmployeeService service;
+
+2. What is IOC (Inversion of Control)?
+Answer
+
+IOC means control of object creation is transferred from developer to Spring Container.
+Without Spring
+EmployeeService service =
+      new EmployeeService();
+With Spring
+@Service
+public class EmployeeService {
+}
+Spring creates object automatically.
+
+Interview Line
+
+IOC means Spring Container manages object creation instead of the programmer.
+
+3. What is Dependency Injection (DI)?
+Answer
+
+Injecting one object into another object.
+@Service
+public class EmployeeService {
+}
+@RestController
+public class EmployeeController {
+
+    @Autowired
+    EmployeeService service;
+}
+Spring injects EmployeeService into EmployeeController.
+Types
+Constructor Injection ✅ Recommended
+Setter Injection
+Field Injection
+
+4. What is Bean?
+Answer
+
+An object managed by Spring Container is called a Bean.
+@Service
+public class EmployeeService {
+}
+`
+Spring creates:
+EmployeeService Bean
+
+5. What is ApplicationContext?
+Answer
+
+ApplicationContext is Spring's IOC Container.
+
+Responsibilities:
+
+Create Beans
+Inject Dependencies
+Manage Bean Lifecycle
+
+6. What is Spring Boot?
+Answer
+
+Spring Boot is built on top of Spring Framework that reduces configuration and speeds up development.
+
+Features:
+
+Auto Configuration
+Embedded Tomcat
+Starter Dependencies
+Production Ready
+
+7. Why Spring Boot?
+
+Before Boot:
+100+ lines configuration
+With Boot:
+spring-boot-starter-web
+Everything configured automatically.
+
+8. What is @SpringBootApplication?
+Answer
+
+Combination of:
+@Configuration
+@EnableAutoConfiguration
+@ComponentScan
+9. How Spring Boot Application Starts?
+@SpringBootApplication
+public class App {
+
+   public static void main(String[] args) {
+      SpringApplication.run(App.class,args);
+   }
+}
+
+main()
+  ↓
+SpringApplication.run()
+  ↓
+Create IOC Container
+  ↓
+Scan Components
+  ↓
+Create Beans
+  ↓
+Inject Dependencies
+  ↓
+Start Embedded Tomcat
+  ↓
+Application Ready
+
+10. What is Component Scanning?
+Answer
+
+Spring scans classes marked with:
+@Component
+@Service
+@Repository
+@Controller
+@RestController
+and creates Bean objects automatically.
+11. What is Auto Configuration?
+Answer
+
+Spring Boot automatically configures required beans based on jars available in classpath.
+Example:
+
+If dependency exists:
+spring-boot-starter-data-jpa
+DataSource
+2
+EntityManager
+3
+TransactionManager
+
+12. What is @Autowired?
+Answer
+
+Used for automatic dependency injection.
+@Autowired
+EmployeeService service;
+Spring finds and injects the bean.
+
+13. What is @Qualifier?
+
+Used when multiple beans exist.
+@Autowired
+2
+@Qualifier("oracleDb")
+3
+Database database;
+
+18. What is Spring Data JPA?
+Answer
+
+Spring Data JPA simplifies database operations.
+public interface EmployeeRepository
+       extends JpaRepository<Employee,Integer>{
+}
+No SQL required for basic CRUD.
+20. How Exception Handling Works?
+Global Exception Handler
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+  @ExceptionHandler(Exception.class)
+  public String handle(Exception e){
+      return e.getMessage();
+  }
+}
+
+21. How Validation Works?
+@PostMapping
+public void save(
+      @Valid @RequestBody Employee emp){
+}
+
+22. What is Spring Boot Actuator?
+/actuator/health
+/actuator/info
+/actuator/metrics
+
+Dependency Injection is the process of injecting dependent objects into a target class rather than creating them manually.
+It helps achieve loose coupling and makes applications easier to maintain and test. Dependency Injection is implemented using the IOC 
+(Inversion of Control) principle, where the responsibility of creating and managing objects is transferred to the Spring IOC Container.
+In Spring, the ApplicationContext acts as the IOC Container and creates, manages, and injects beans automatically.
+
+Problems Before Spring:
+EmployeeService service = new EmployeeService();
+
+Developer creates objects manually.
+Issues:
+
+Tight coupling
+Difficult testing
+More maintenance
+
+Spring Solution
+
+Spring creates and manages objects.
+
+@Autowired
+EmployeeService service;
+
+2. What is IOC (Inversion of Control)?
+Answer
+
+IOC means control of object creation is transferred from developer to Spring Container.
+Without Spring
+EmployeeService service =
+      new EmployeeService();
+With Spring
+@Service
+public class EmployeeService {
+}
+Spring creates object automatically.
+
+Interview Line
+
+IOC means Spring Container manages object creation instead of the programmer.
+
+3. What is Dependency Injection (DI)?
+Answer
+
+Injecting one object into another object.
+@Service
+public class EmployeeService {
+}
+@RestController
+public class EmployeeController {
+
+    @Autowired
+    EmployeeService service;
+}
+Spring injects EmployeeService into EmployeeController.
+Types
+Constructor Injection ✅ Recommended
+Setter Injection
+Field Injection
+
+4. What is Bean?
+Answer
+
+An object managed by Spring Container is called a Bean.
+@Service
+public class EmployeeService {
+}
+`
+Spring creates:
+EmployeeService Bean
+
+5. What is ApplicationContext?
+Answer
+
+ApplicationContext is Spring's IOC Container.
+
+Responsibilities:
+
+Create Beans
+Inject Dependencies
+Manage Bean Lifecycle
+
+6. What is Spring Boot?
+Answer
+
+Spring Boot is built on top of Spring Framework that reduces configuration and speeds up development.
+
+Features:
+
+Auto Configuration
+Embedded Tomcat
+Starter Dependencies
+Production Ready
+
+7. Why Spring Boot?
+
+Before Boot:
+100+ lines configuration
+With Boot:
+spring-boot-starter-web
+Everything configured automatically.
+
+8. What is @SpringBootApplication?
+Answer
+
+Combination of:
+@Configuration
+@EnableAutoConfiguration
+@ComponentScan
+9. How Spring Boot Application Starts?
+@SpringBootApplication
+public class App {
+
+   public static void main(String[] args) {
+      SpringApplication.run(App.class,args);
+   }
+}
+
+main()
+  ↓
+SpringApplication.run()
+  ↓
+Create IOC Container
+  ↓
+Scan Components
+  ↓
+Create Beans
+  ↓
+Inject Dependencies
+  ↓
+Start Embedded Tomcat
+  ↓
+Application Ready
+
+10. What is Component Scanning?
+Answer
+
+Spring scans classes marked with:
+@Component
+@Service
+@Repository
+@Controller
+@RestController
+and creates Bean objects automatically.
+11. What is Auto Configuration?
+Answer
+
+Spring Boot automatically configures required beans based on jars available in classpath.
+Example:
+
+If dependency exists:
+spring-boot-starter-data-jpa
+DataSource
+2
+EntityManager
+3
+TransactionManager
+
+12. What is @Autowired?
+Answer
+
+Used for automatic dependency injection.
+@Autowired
+EmployeeService service;
+Spring finds and injects the bean.
+
+13. What is @Qualifier?
+
+Used when multiple beans exist.
+@Autowired
+2
+@Qualifier("oracleDb")
+3
+Database database;
+
+18. What is Spring Data JPA?
+Answer
+
+Spring Data JPA simplifies database operations.
+public interface EmployeeRepository
+       extends JpaRepository<Employee,Integer>{
+}
+No SQL required for basic CRUD.
+20. How Exception Handling Works?
+Global Exception Handler
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+  @ExceptionHandler(Exception.class)
+  public String handle(Exception e){
+      return e.getMessage();
+  }
+}
+
+21. How Validation Works?
+@PostMapping
+public void save(
+      @Valid @RequestBody Employee emp){
+}
+
+22. What is Spring Boot Actuator?
+/actuator/health
+/actuator/info
+/actuator/metrics
+
+Dependency Injection is the process of injecting dependent objects into a target class rather than creating them manually. It helps achieve loose coupling and makes applications easier to maintain and test. Dependency Injection is implemented using the IOC (Inversion of Control) principle, where the responsibility of creating and managing objects is transferred to the Spring IOC Container. In Spring, the ApplicationContext acts as the IOC Container and creates, manages, and injects beans automatically.
