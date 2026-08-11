@@ -1,0 +1,250 @@
+Because String is Immutable in Java.
+Immutable means:
+
+Once a String object is created, its value cannot be changed.
+
+When you do:
+str.concat("babu");
+
+Java creates a new String object.
+
+String str = "Nagendra";
+2
+ 
+3
+str = str.concat("babu");
+4
+ 
+5
+System.out.println(str);
+Why String is Immutable?
+
+Advantages:
+
+Thread Safe
+String Pool Optimization
+Security (URL, Password, DB Connection String)
+Better Performance
+
+StringBuilder Example
+StringBuilder sb = new StringBuilder("Nagendra");
+2
+ 
+3
+sb.append("babu");
+4
+ 
+5
+System.out.println(sb);
+
+Output
+Nagendrababu
+Why?
+
+Because StringBuilder is mutable and modifies the same object.
+
+String is immutable in Java. Methods like concat(), replace(), and toUpperCase() do not modify the existing String object. Instead, they create and return a new String object. In your example, str.concat("babu") creates a new String "Nagendrababu", but since the returned value is not assigned back to str, the original String "Nagendra" remains unchanged. To update the value, we must assign the result back: str = str.concat("babu");.
+
+
+String vs StringBuffer vs StringBuilder
+
+This is one of the most frequently asked Java interview questions.
+
+1. String
+Definition
+
+String is an immutable class.
+
+Once an object is created, its value cannot be changed.
+String str = "Nagendra";
+2
+ 
+3
+str.concat("Babu");
+4
+ 
+5
+System.out.println(str);
+Output
+
+
+str
+2
+|
+3
+v
+4
+Nagendra
+5
+ 
+6
+concat()
+7
+ 
+8
+New Object
+9
+NagendraBabu
+
+2. StringBuffer
+Definition
+
+StringBuffer is mutable and thread-safe.
+
+It allows modifications on the same object.
+
+Example
+StringBuffer sb = new StringBuffer("Nagendra");
+2
+ 
+3
+sb.append("Babu");
+4
+ 
+5
+System.out.println(sb);
+NagendraBabu
+Before:
+2
+ 
+3
+Nagendra
+4
+ 
+5
+After append():
+6
+ 
+7
+NagendraBabu
+
+Thread Safety
+
+Methods are synchronized.
+public synchronized StringBuffer append()
+Suitable for:
+
+✅ Multi-threaded applications
+
+❌ Slightly slower because of synchronization
+3. StringBuilder
+Definition
+
+StringBuilder is mutable but not thread-safe.
+
+Example
+StringBuilder sb = new StringBuilder("Nagendra");
+2
+ 
+3
+sb.append("Babu");
+4
+ 
+5
+System.out.println(sb);
+NagendraBabu
+Thread Safety
+
+No synchronization.
+Suitable for:
+
+✅ Single-threaded applications
+
+✅ Best performance
+When to Use?
+Use String
+
+When data won't change.
+
+Use StringBuffer
+
+When multiple threads modify data.
+
+StringBuffer logMessage =
+2
+new StringBuffer();
+
+Use StringBuilder
+
+When performance is important and there is no multi-threading.
+
+StringBuilder query =
+2
+new StringBuilder();
+
+Comparison Table
+Feature	String	StringBuffer	StringBuilderMutable	❌ No	✅ Yes	✅ Yes
+Thread Safe	✅ Yes (Immutable)	✅ Yes	❌ No
+Performance	Slow	Medium	Fastest
+Synchronization	N/A	✅ Yes	❌ No
+Java Version	1.0	1.0	1.5
+Memory Usage	More	Less	Less
+Use Case	Fixed Data	Multi-threading	Single-threading
+
+Why is String Immutable?
+
+Benefits:
+
+Thread Safe
+Security
+String Pool Optimization
+Better Caching
+HashCode Caching
+
+String is immutable, meaning its value cannot be changed after creation. Any modification creates a new object. StringBuffer and StringBuilder are mutable classes that modify the same object. StringBuffer is thread-safe because its methods are synchronized, making it suitable for multi-threaded environments. StringBuilder is not thread-safe but offers better performance and is preferred in single-threaded applications. When frequent string modifications are required, StringBuilder is usually the best choice due to its speed.
+
+
+What is String Immutability?
+Definition
+
+A String is Immutable, which means:
+
+Once a String object is created, its value cannot be changed.
+
+If you try to modify it, Java creates a new String object instead of changing the existing one.
+
+String str = "Nagendra";
+
+str.concat("Babu");
+
+System.out.println(str);
+op
+Nagendra
+
+Why?
+str.concat("Babu");
+creates a new String:
+NagendraBabu
+but you didn't store it anywhere.
+str
+2
+|
+3
+v
+4
+"Nagendra"
+5
+ 
+6
+New Object Created:
+7
+"NagendraBabu"
+The new object is discarded.
+
+String str = "Nagendra";
+2
+ 
+3
+str = str.concat("Babu");
+4
+ 
+5
+System.out.println(str);
+
+NagendraBabu
+
+String str = "Nagendra" creates a String literal and stores it in the String Constant Pool. If the same value already exists, Java reuses the existing object. String str1 = new String("Babu") always creates a new object in Heap Memory, and the literal "Babu" is also maintained in the String Constant Pool. SCP (String Constant Pool) is a special memory area used to store and reuse String literals, which improves memory efficiency and performance. Therefore, string literals are generally preferred over new String().
+
+
+
+
