@@ -269,8 +269,129 @@ map() is used when one input element produces one output element. flatMap() is u
 
 map() converts one object into one object, whereas flatMap() converts one object into multiple objects and then flattens them into a single stream. For example, converting List<List<String>> into List<String> is a common use case of flatMap().
 
+
+
 filter()  ---> Predicate ---> test() ---> true/false
 
 map()     ---> Function  ---> apply()
 
 forEach() ---> Consumer  ---> accept()
+--------------------------------------------------------------------------
+Why was Java 8 Date and Time API introduced?
+Answer
+
+Before Java 8, Java provided Date and Calendar classes for handling date and time. These APIs had several limitations such as mutability,
+lack of thread safety, complex APIs, and difficult date calculations. To overcome these issues, Java 8 introduced the java.time package,
+which provides immutable, thread-safe, and easy-to-use date and time classes.
+Problems with Old Date API
+1. Not Thread Safe
+SimpleDateFormat sdf =
+       new SimpleDateFormat("dd-MM-yyyy");
+       
+       SimpleDateFormat is not thread-safe.
+
+In multi-threaded applications:
+Incorrect Dates
+Data Corruption
+Unexpected Results
+2. Mutable Objects
+Date date = new Date();
+
+date.setDate(25);
+Date object can be modified.
+
+This may lead to unexpected behavior.
+
+Java 8 Solution
+
+Java introduced
+java.time
+package.
+
+Main features:
+
+✅ Immutable
+
+✅ Thread Safe
+
+✅ Better API Design
+
+✅ Easy Date Calculations
+
+✅ Time Zone Support
+
+✅ Better Formatting
+
+How Thread Safety Is Achieved?
+
+All classes are immutable.
+LocalDate today =
+       LocalDate.now();
+
+LocalDate nextDay =
+       today.plusDays(1);
+       
+       today remains unchanged.
+
+A new object is created.
+
+Why was Java 8 Date and Time API introduced?
+Answer
+
+Before Java 8, Java provided Date and Calendar classes for handling date and time. These APIs had several limitations such as mutability,
+lack of thread safety, complex APIs, and difficult date calculations. To overcome these issues, Java 8 introduced the java.time package,
+which provides immutable, thread-safe, and easy-to-use date and time classes.
+Problems with Old Date API
+1. Not Thread Safe
+SimpleDateFormat sdf =
+       new SimpleDateFormat("dd-MM-yyyy");
+       
+       SimpleDateFormat is not thread-safe.
+
+In multi-threaded applications:
+Incorrect Dates
+Data Corruption
+Unexpected Results
+2. Mutable Objects
+Date date = new Date();
+
+date.setDate(25);
+Date object can be modified.
+
+This may lead to unexpected behavior.
+
+Java 8 Solution
+
+Java introduced
+java.time
+package.
+
+Main features:
+
+✅ Immutable
+
+✅ Thread Safe
+
+✅ Better API Design
+
+✅ Easy Date Calculations
+
+✅ Time Zone Support
+
+✅ Better Formatting
+
+How Thread Safety Is Achieved?
+
+All classes are immutable.
+LocalDate today =
+       LocalDate.now();
+
+LocalDate nextDay =
+       today.plusDays(1);
+       
+       today remains unchanged.
+
+A new object is created.
+Java 8 Date & Time API was introduced to replace the old Date and Calendar APIs by providing immutable, thread-safe, and easy-to-use classes for date and time operations.
+
+Java 8 introduced the Date and Time API (java.time package) because the older Date and Calendar APIs had several problems such as mutability, lack of thread safety, complex date calculations, and poor API design. The new API provides immutable and thread-safe classes like LocalDate, LocalTime, and LocalDateTime, making date manipulation, formatting, and time zone handling much simpler and more reliable in modern Java applications.
