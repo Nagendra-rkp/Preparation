@@ -1,0 +1,276 @@
+java 8 features 
+
+Functional Interface
+
+An interface containing only one abstract method.
+
+@FunctionalInterface
+interface Calculator {
+    int add(int a, int b);
+}
+
+3. Stream API
+
+for(Employee e : employees) {
+   if(e.getSalary() > 50000) {
+      System.out.println(e);
+   }
+}
+
+Stream API is used to process collections (List, Set, Map) in a functional and declarative way.
+
+List<Integer> list =
+        Arrays.asList(10,20,30,40,50);
+
+for(Integer num : list) {
+    if(num > 20) {
+       System.out.println(num);
+    }
+}
+
+java8:
+list.stream()
+    .filter(num -> num > 20)
+    .forEach(System.out::println);
+	
+	
+	Types of Operations
+1. Intermediate Operations
+
+These return another stream.
+
+filter()
+map()
+sorted()
+distinct()
+limit()
+skip()
+
+Filter:
+
+List<Integer> num = Arrays.asList(10,20,30);
+num.stream
+.filter(x->x>20)
+.forEach(System.out.println)
+
+Map:
+Transforms data
+
+List<String> names = Arrays.asList("nagendra","Ram")
+
+names.stream
+.map(String::toUppercase)
+.forEach(System.out.println)
+
+List<Integer> result =
+        list.stream()
+            .filter(x -> x > 20)
+            .collect(Collectors.toList());
+
+System.out.println(result);
+
+
+class Employee {
+
+   int id;
+   String name;
+   double salary;
+
+}
+Employees Salary > 50000
+employees.stream()
+         .filter(emp -> emp.getSalary() > 50000)
+         .forEach(System.out::println);
+		 
+		 Sort by Salary
+		 
+		 employees.stream()
+         .sorted(
+            Comparator.comparing(
+                Employee::getSalary))
+         .forEach(System.out::println);
+
+Highest Salary Employee
+
+Employee emp =
+employees.stream()
+         .max(
+            Comparator.comparing(
+                Employee::getSalary))
+         .get();
+		 
+ filter()
+
+Used for selection
+
+Employee
+  ↓
+filter(salary > 50000)
+  ↓
+Employee
+
+map()
+
+Used for transformation
+
+Employee
+   ↓
+map(getName)
+   ↓
+String
+
+
+Real-Time Scenario
+
+Employee(
+1,"Nagendra",70000)
+
+Employee(
+2,"Rahul",40000)
+
+Employee(
+3,"Arjun",80000)
+
+employees.stream()
+         .filter(emp -> emp.getSalary() > 50000)
+         .map(Employee::getName)
+         .forEach(System.out::println);
+		 
+		 
+One-Line Interview Answer
+
+filter() is used for filtering records based on a condition, whereas map() is used for transforming one object into another object or value.
+
+filter = Select Data
+.filter(emp -> emp.getSalary() > 50000)
+✅ Keeps matching records
+
+map = Convert Data
+
+.map(Employee::getName)
+✅ Converts one form to another
+
+
+Sorted:
+List<Integer> list =
+   Arrays.asList(40,10,30,20);
+
+list.stream()
+    .sorted()
+    .forEach(System.out::println);
+	10
+20
+30
+40
+
+Distinct:
+Removes duplicates.
+List<Integer> list =
+ Arrays.asList(10,20,20,30,30);
+
+list.stream()
+    .distinct()
+    .forEach(System.out::println);
+	
+collect
+
+Convert Stream back to Collection.
+
+List<Integer> result =
+        list.stream()
+            .filter(x -> x > 20)
+            .collect(Collectors.toList());
+
+System.out.println(result);
+
+
+-------------------------------
+Map vs FlatMap
+
+Map
+
+Returns one value for one input.
+
+List<String> names =
+Arrays.asList("Nagendra","Rahul");
+
+names.stream()
+     .map(String::toUpperCase)
+     .forEach(System.out::println);
+	 
+Why flatMap()?
+
+Suppose you have:
+
+List<List<String>> list =
+ Arrays.asList(
+   Arrays.asList("Java","Spring"),
+   Arrays.asList("Kafka","Docker")
+ );
+ Data looks like:
+ [
+ [Java, Spring],
+ [Kafka, Docker]
+]
+This is a List of Lists.
+
+Using map()
+
+list.stream()
+    .map(x -> x)
+    .forEach(System.out::println);
+	
+	Output:
+	[Java, Spring]
+[Kafka, Docker]
+
+Using flatMap()
+
+list.stream()
+    .flatMap(Collection::stream)
+    .forEach(System.out::println);
+Output:	
+	Java
+Spring
+Kafka
+Docker
+
+Easy Real-Time Example
+
+Department A
+-------------
+Nagendra
+Rahul
+
+Department B
+-------------
+Arjun
+Venkatesh
+``
+
+List<List<String>> employees =
+Arrays.asList(
+  Arrays.asList("Nagendra","Rahul"),
+  Arrays.asList("Arjun","Venkatesh")
+);
+employees.stream()
+         .map(emp -> emp)
+         .forEach(System.out::println);
+		 
+		 [Nagendra, Rahul]
+[Arjun, Venkatesh]
+flatMap()
+
+employees.stream()
+         .flatMap(Collection::stream)
+         .forEach(System.out::println);
+		 
+map() is used when one input element produces one output element. flatMap() is used when one input element produces multiple output elements or when dealing with nested collections. flatMap() flattens multiple streams into a single stream. For example, converting List<List<String>> into List<String> is a common use case of flatMap().
+
+map() converts one object into one object, whereas flatMap() converts one object into multiple objects and then flattens them into a single stream. For example, converting List<List<String>> into List<String> is a common use case of flatMap().
+
+filter()  ---> Predicate ---> test() ---> true/false
+
+map()     ---> Function  ---> apply()
+
+forEach() ---> Consumer  ---> accept()
