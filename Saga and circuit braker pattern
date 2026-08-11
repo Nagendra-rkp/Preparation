@@ -1,0 +1,470 @@
+1. How would you design a high-volume Spring Boot microservice?
+When designing a high-volume microservice, my focus is on scalability, resiliency, performance, and observability.
+Architecture:
+Client | API Gateway | Load Balancer | Spring Boot Microservice (Multiple Instances) | 
+
+Stateless Services
+
+No session stored in server memory.
+Store sessions in JWT or Redis. Cache | Kafka | Database (Read Replica)
+
+Redis used to reduce DB hits.
+
+Database Optimization
+-Indexing
+-Pagination
+-Query optimization
+-Read replicas
+
+2. How do you handle Distributed Transactions?
+Problem:
+Multiple microservices updating different databases.
+
+Example
+Order Service 
+Payment Service
+ Inventory Service
+ If Payment succeeds and Inventory fails, data becomes inconsistent.
+ Solution 1: Saga Pattern (Recommended)
+Most commonly used.
+
+What is Saga Design Pattern?
+
+Saga Pattern is a microservices design pattern used to manage distributed transactions across multiple services.
+
+Instead of having one big database transaction, Saga breaks the business transaction into a series of local transactions.
+
+Each service:
+
+Executes its own transaction.
+Updates its own database.
+Triggers the next service.
+
+If any step fails, Saga executes compensating transactions to undo the completed steps and maintain consistency.
+
+Why do we need Saga?
+Problem without Saga
+
+Suppose an e-commerce application has:
+
+Order Service
+Payment Service
+Inventory Service
+Shipping Service
+Flow:
+Create Order
+      ↓
+Payment Success
+      ↓
+Inventory Reserved
+      ↓
+Shipping Created
+
+What happens if:
+Order Created ✅
+2
+Payment Success ✅
+3
+Inventory Reserved ✅
+4
+Shipping Failed ❌
+Now the system is inconsistent:
+
+Customer was charged
+Inventory was reduced
+Product was not shipped
+
+Traditional database rollback is not possible because each microservice has its own database.
+
+Saga solves this problem.
+How Saga Works:
+Success Scenario:
+Order Service
+      ↓
+Payment Service
+      ↓
+Inventory Service
+      ↓
+Shipping Service
+      ↓
+Order Completed
+
+Failure Scenario:
+If Shipping fails:
+Shipping Failed
+      ↓
+Inventory Compensation
+      ↓
+Release Stock
+      ↓
+Payment Compensation
+      ↓
+Refund Customer
+      ↓
+Order Compensation
+      ↓
+Cancel Order
+
+This rollback logic is called a Compensating Transaction
+
+Types of Saga:
+1. Choreography (Event-Driven)
+Services communicate through events.
+Order Created Event
+        ↓
+Payment Service
+        ↓
+Payment Completed Event
+        ↓
+Inventory Service
+        ↓
+Inventory Reserved Event
+        ↓
+Shipping Service
+Tools:
+
+Kafka
+RabbitMQ
+Event Bus
+
+Advantages
+
+Loose coupling
+No central coordinator
+
+Disadvantages
+
+Difficult to track flow
+Complex when many services exist
+
+2. Orchestration (Central Coordinator)
+
+Saga Orchestration (Central Coordinator) - Easy Explanation
+In Orchestration Saga, a separate service called Saga Orchestrator controls the entire workflow.
+
+Instead of services talking to each other directly, all services communicate through the orchestrator.
+
+Example: E-Commerce Order
+
+Services:
+
+Order Service
+Payment Service
+Inventory Service
+Shipping Service
+Saga Orchestrator
+
+Successful Flow
+Customer Places Order
+        |
+        v
+Saga Orchestrator
+        |
+        +--> Order Service
+                |
+                +--> Order Created
+
+        +--> Payment Service
+                |
+                +--> Payment Success
+
+        +--> Inventory Service
+                |
+                +--> Inventory Reserved
+
+        +--> Shipping Service
+                |
+                +--> Shipment Created
+
+        +--> Order Completed
+========================================================
+Order Service
+ | 
+ |--> OrderCreatedEvent
+ v 
+ Kafka Topic: order-created
+ Payment Service 
+ |
+ | --> PaymentCompletedEvent
+ v 
+ Kafka Topic: payment-completed 
+ Inventory Service 
+ | 
+ | --> InventoryReservedEvent 
+ v Kafka Topic: inventory-reserved 
+ Shipping Service
+ -------------------------------
+ 1. Order Service
+Create Order & Publish Event
+@RestController
+@RequestMapping("/orders")
+public class OrderController {
+
+    @Autowired
+    private KafkaTemplate<String, Object> kafkaTemplate;
+
+    @PostMapping
+    public String createOrder() {
+
+        OrderCreatedEvent event =
+                new OrderCreatedEvent(101L, "Laptop", 1);
+
+        kafkaTemplate.send("order-created", event);
+
+        return "Order Created";
+    }
+}
+2. Payment Service
+Consume Order Event
+@Component
+public class PaymentConsumer {
+
+    @Autowired
+    private KafkaTemplate<String, Object> kafkaTemplate;
+
+    @KafkaListener(
+            topics = "order-created",
+            groupId = "payment-group")
+    public void processPayment(OrderCreatedEvent event) {
+
+        System.out.println("Payment Processing for Order : "
+                + event.getOrderId());
+
+        // Payment Success
+
+        PaymentCompletedEvent paymentEvent =
+                new PaymentCompletedEvent(
+                        event.getOrderId(),
+                        "SUCCESS");
+
+        kafkaTemplate.send(
+                "payment-completed",
+                paymentEvent);
+    }
+}
+4. Shipping Service
+Consume Inventory Event
+@Component
+public class ShippingConsumer {
+
+    @KafkaListener(
+            topics = "inventory-reserved",
+            groupId = "shipping-group")
+    public void shipOrder(
+            InventoryReservedEvent event) {
+
+        System.out.println(
+                "Shipping Started for Order : "
+                        + event.getOrderId());
+    }
+}
+--------------------------------
+Compensation Example (Failure Scenario)
+
+Suppose Payment succeeds but Inventory fails.
+Order Created 
+  ↓
+ Payment Completed 
+   ↓
+ Inventory Failed 
+   ↓ 
+ Publish PaymentRollbackEvent
+   ↓ 
+ Payment Service Refunds Money
+ 
+ Inventory Service:
+ 
+ if(stockUnavailable){
+
+    PaymentRollbackEvent rollback =
+            new PaymentRollbackEvent(
+                    orderId,
+                    "OUT_OF_STOCK");
+
+    kafkaTemplate.send(
+            "payment-rollback",
+            rollback);
+}
+
+Payment Service:
+
+@KafkaListener(
+        topics = "payment-rollback",
+        groupId = "payment-group")
+public void refund(
+        PaymentRollbackEvent event){
+
+    System.out.println(
+            "Refund Initiated for Order : "
+             + event.getOrderId());
+}
+``
+
+Why Choreography?
+
+No central coordinator
+Services are loosely coupled
+Highly scalable
+Best suited for Kafka/Event-driven Microservices
+
+Disadvantages
+
+Difficult to track overall transaction flow
+Event chains become complex as services grow
+Debugging is harder compared to Orchestration Saga
+
+=======================================		
+Failure Flow
+
+Suppose Shipping Service fails:
+Order Created ✅
+Payment Success ✅
+Inventory Reserved ✅
+Shipping Failed ❌
+
+Now Orchestrator starts rollback:
+Shipping Failed
+       |
+       v
+Saga Orchestrator
+       |
+       +--> Inventory Service
+               Release Stock
+
+       +--> Payment Service
+               Refund Amount
+
+       +--> Order Service
+               Cancel Order
+Final Result:
+Order Cancelled
+Payment Refunded
+Inventory Restored
+
+Spring Boot Real-Time Example
+
+Imagine you are building a food delivery application:
+
+@PostMapping("/placeOrder")
+public String placeOrder() {
+
+   orderService.createOrder();
+
+   paymentService.processPayment();
+
+   inventoryService.reserveItems();
+
+   shippingService.createShipment();
+
+   return "Order Completed";
+}
+If shippingService.createShipment() throws an exception:
+catch(Exception e){
+
+   inventoryService.releaseItems();
+
+   paymentService.refund();
+
+   orderService.cancelOrder();
+}
+Advantages
+
+✅ Easy to understand
+
+✅ Centralized workflow management
+
+✅ Easy monitoring and debugging
+
+✅ Suitable for complex business processes
+
+✅ Widely used in large enterprise applications
+Disadvantages
+
+❌ Orchestrator becomes a central dependency
+
+❌ If orchestrator is down, workflow stops
+
+❌ Additional service to maintain
+
+❌ Can become complex for very large systems
+   
+ 
+
+Saga Design Pattern is used to handle distributed transactions in microservices architectures. Instead of using a single ACID transaction across multiple services, Saga breaks a business transaction into multiple local transactions. Each service updates its own database and triggers the next service. If any step fails, compensating transactions are executed to undo previously completed operations and maintain data consistency. Saga can be implemented using Choreography (event-driven with Kafka/RabbitMQ) or Orchestration (central coordinator). It is commonly used in e-commerce, payment, booking, and order management systems.
+
+In Saga Orchestration, a central Saga Orchestrator controls the execution of distributed transactions across multiple microservices. The orchestrator invokes each service in sequence and decides whether to continue or execute compensating transactions when a failure occurs. It provides better visibility and control than Choreography and is commonly implemented using workflow engines such as Temporal, Camunda, Conductor, or custom Spring Boot orchestrator services.
+
+Key Interview Point:
+
+Choreography → Services communicate through Kafka/RabbitMQ events.
+Orchestration → One central service controls the complete workflow. ✅
+
+Most enterprise Spring Boot projects prefer Orchestration when the business flow is complex and requires centralized tracking.
+=======================================================================
+Circuit Breaker====== is a resilience pattern used in distributed systems and microservices to stop calls to a failing service after a predefined failure threshold. It prevents cascading failures, improves system stability, provides fallback responses, and allows automatic recovery through Closed, Open, and Half-Open states. Resilience4j is the preferred implementation in modern Spring Boot applications.
+
+Since you're preparing for Spring Boot interviews, a common follow-up question is:"Difference between Retry and Circuit Breaker?" Retry attempts the call again, whereas Circuit Breaker stops calling a failing service after repeated failures.
+What is a Circuit Breaker?
+
+A Circuit Breaker is a resilience design pattern used in Microservices to prevent an application from repeatedly calling a service that is failing or unavailable. Instead of continuously sending requests and causing more failures, it temporarily stops calls and returns a fallback response.
+
+Real-Time Example
+
+Suppose:
+
+Order Service → calls → Payment Service
+Payment Service becomes slow or goes down.
+
+Without Circuit Breaker:
+
+Order Service keeps calling Payment Service.
+Threads get blocked waiting for responses.
+Response times increase.
+Failures spread to other services (cascading failure).
+
+With Circuit Breaker:
+
+After detecting multiple failures, the circuit opens.
+Requests to Payment Service are stopped temporarily.
+A fallback response is returned immediately.
+The failing service gets time to recover.
+Why Do We Use Circuit Breaker?
+1. Prevent Cascading Failures
+
+One failed service should not bring down the entire system.
+
+2. Improve Application Stability
+
+Resources such as threads and connections are not wasted on failing requests.
+
+3. Faster Response to Users
+
+Instead of waiting for a timeout, users receive an immediate fallback response.
+
+4. Automatic Recovery
+
+The circuit periodically checks whether the service has recovered and resumes normal operations when healthy.
+
+Circuit Breaker States
+Closed State ✅
+Normal operation.
+Requests are allowed.
+Failures are monitored.
+Open State ❌
+Failure threshold exceeded.
+Requests are blocked immediately.
+Fallback method is executed.
+Half-Open State ⚠️
+After a waiting period, a few test requests are allowed.
+If successful → move to Closed.
+If failed → move back to Open.
+Spring Boot Example (Resilience4j)
+@CircuitBreaker(name = "paymentService",
+                fallbackMethod = "paymentFallback")
+public String makePayment() {
+    return paymentClient.pay();
+}
+
+public String paymentFallback(Exception ex) {
+    return "Payment service is unavailable. Please try later.";
+}
