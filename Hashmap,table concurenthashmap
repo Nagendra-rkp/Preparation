@@ -1,0 +1,144 @@
+
+Difference Between Hashtable and ConcurrentHashMap
+
+Hashtable vs ConcurrentHashMap (Point Wise)
+1. Thread Safety
+Hashtable → ✅ Thread Safe
+ConcurrentHashMap → ✅ Thread Safe
+
+2. Performance
+Hashtable → Slow
+Entire map is locked for every operation.
+ConcurrentHashMap → Fast
+Only bucket/portion of map is locked.
+
+3. Locking Mechanism
+
+Hashtable
+
+Uses method-level synchronization.
+Entire map gets locked.
+
+ConcurrentHashMap
+
+Uses bucket-level locking + CAS (Compare And Swap).
+Only affected bucket gets locked.
+
+4. Multiple Threads Access
+Hashtable
+Only one thread can access the map at a time.
+Thread-1 -> Running
+2
+Thread-2 -> Waiting
+3
+Thread-3 -> Waiting
+
+ConcurrentHashMap
+Multiple threads can work simultaneously on different buckets.
+Thread-1 -> Bucket-1
+2
+Thread-2 -> Bucket-2
+3
+Thread-3 -> Bucket-3
+
+Both Hashtable and ConcurrentHashMap are thread-safe. Hashtable synchronizes the entire map, allowing only one thread to access it at a time, which makes it slower. ConcurrentHashMap provides thread safety using bucket-level locking and CAS operations, allowing multiple threads to read and write concurrently. Therefore, ConcurrentHashMap offers much better performance and is the preferred choice in modern Java and Spring Boot applications.
+======================
+Hashtable
+
+In Hashtable, the entire map is locked.
+Hashtable<Integer,String> table =new Hashtable<>();
+Internally:
+public synchronized V put(K key, V value)
+
+Suppose:
+
+Thread-1
+table.put(101,"Nagendra");
+
+Hashtable locks the entire object.
+Map Locked
+
+Thread-2
+table.put(102,"Rahul");
+Must wait.
+
+Thread-1 ---> Running
+Thread-2 ---> Waiting
+Thread-3 ---> Waiting
+Only one thread works at a time.
+ConcurrentHashMap
+
+ConcurrentHashMap does not lock the whole map.
+
+It locks only the bucket being modified.
+
+Example:
+Bucket 1
+2
+Bucket 2
+3
+Bucket 3
+4
+Bucket 4
+Let's say:
+map.put(101,"Nagendra");
+goes to Bucket-1
+map.put(102,"Rahul");
+goes to Bucket-3
+Then:
+Thread-1 -> Bucket-1
+2
+ 
+3
+Thread-2 -> Bucket-3
+Both execute simultaneously.
+Bucket-1 [LOCKED]
+2
+Bucket-2 [FREE]
+3
+Bucket-3 [LOCKED]
+4
+Bucket-4 [FREE]
+
+Hashtable
+
+Only one counter.
+Customer1 -> Counter
+2
+Customer2 -> Wait
+3
+Customer3 -> Wait
+4
+Customer4 -> Wait
+Everyone waits.
+ConcurrentHashMap
+
+Multiple counters.
+Customer1 -> Counter1
+2
+Customer2 -> Counter2
+3
+Customer3 -> Counter3
+4
+Customer4 -> Counter4
+Multiple customers are served at the same time.
+
+Same concept.
+
+IdentityHashMap in Java
+======================
+
+IdentityHashMap is a special implementation of the Map interface that compares keys using reference equality (==) instead of object equality (equals()). It also uses System.identityHashCode() instead of hashCode()
+
+How it Works
+HashMap
+String s1 = new String("Java");
+String s2 = new String("Java");
+
+Map<String, Integer> map = new HashMap<>();
+map.put(s1, 100);
+
+System.out.println(map.get(s2)); // 100
+Works because s1.equals(s2) is true.
+
+HashMap uses equals() and hashCode() to compare keys, whereas IdentityHashMap uses reference equality (==) and System.identityHashCode(). If two objects contain the same data but are different instances, HashMap treats them as the same key, while IdentityHashMap treats them as different keys. IdentityHashMap is mainly used for object identity tracking, serialization frameworks, and scenarios where object references matter more than object content.
